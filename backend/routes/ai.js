@@ -18,73 +18,30 @@ Each object must have exactly these fields:
 Example:
 [{"day":"Mo","startTime":"14:00","endTime":"17:00","subject":"Applied Physics Lab","code":"Ph111L","room":"Lab 1","teacher":"Yasir Arif","color":"#10B981"}]`;
 
-// Try Gemini models in order
-const GEMINI_MODELS = [
-  'gemini-2.0-flash-lite',
-  'gemini-2.0-flash',
-  'gemini-1.5-flash-8b',
-  'gemini-1.5-flash',
-  'gemini-1.5-pro',
-];
-
-async function tryGemini(model, imageBase64, mimeType, apiKey) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-  const response = await axios.post(url, {
-    contents: [{
-      parts: [
-        { inline_data: { mime_type: mimeType || 'image/jpeg', data: imageBase64 } },
-        { text: PROMPT }
-      ]
-    }],
-    generationConfig: { temperature: 0.1, maxOutputTokens: 4000 }
-  }, {
-    headers: { 'Content-Type': 'application/json' },
-    timeout: 30000
-  });
-  return response.data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-}
-
-// Try OpenRouter as backup
-async function tryOpenRouter(imageBase64, mimeType, apiKey) {
-  const models = [
-    'google/gemini-2.0-flash-exp:free',
-    'meta-llama/llama-3.2-11b-vision-instruct:free',
-    'qwen/qwen2-vl-7b-instruct:free',
-  ];
-  for (const model of models) {
-    try {
-      const response = await axios.post(
-        'https://openrouter.ai/api/v1/chat/completions',
-        {
-          model,
-          messages: [{
-            role: 'user',
-            content: [
-              { type: 'image_url', image_url: { url: `data:${mimeType || 'image/jpeg'};base64,${imageBase64}` } },
-              { type: 'text', text: PROMPT }
-            ]
-          }],
-          max_tokens: 4000,
-          temperature: 0.1,
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-            'HTTP-Referer': 'https://classpulse-red.vercel.app',
-            'X-Title': 'ClassPulse'
-          },
-          timeout: 30000
-        }
-      );
-      const text = response.data?.choices?.[0]?.message?.content || '';
-      if (text && text.includes('[')) return text;
-    } catch (e) {
-      console.log(`OpenRouter model ${model} failed:`, e.response?.data?.error?.message || e.message);
-      continue;
+async function tryGroq(imageBase64, mimeType, apiKey) {
+  const response = await axios.post(
+    'https://api.groq.com/openai/v1/chat/completions',
+    {
+      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image_url', image_url: { url: `data:${mimeType || 'image/jpeg'};base64,${imageBase64}` } },
+          { type: 'text', text: PROMPT }
+        ]
+      }],
+      max_tokens: 4000,
+      temperature: 0.1,
+    },
+    {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      timeout: 30000
     }
-  }
-  return '';
+  );
+  return response.data?.choices?.[0]?.message?.content || '';
 }
 
 router.post('/extract-timetable', auth, async (req, res) => {
@@ -92,57 +49,41 @@ router.post('/extract-timetable', auth, async (req, res) => {
     const { imageBase64, mimeType } = req.body;
     if (!imageBase64) return res.status(400).json({ message: 'Image data required' });
 
-    const geminiKey = process.env.GEMINI_API_KEY;
-    const openrouterKey = process.env.OPENROUTER_API_KEY;
-
-    let raw = '';
-    let usedModel = '';
-
-    // Try Gemini first if key exists
-    if (geminiKey) {
-      for (const model of GEMINI_MODELS) {
-        try {
-          console.log(`Trying Gemini model: ${model}`);
-          raw = await tryGemini(model, imageBase64, mimeType, geminiKey);
-          if (raw && raw.includes('[')) {
-            usedModel = `gemini:${model}`;
-            console.log(`Success with Gemini model: ${model}`);
-            break;
-          }
-        } catch (err) {
-          const status = err.response?.status;
-          const msg = err.response?.data?.error?.message || err.message;
-          console.log(`Gemini ${model} failed (${status}): ${msg}`);
-          if (status === 401 || status === 403) break; // bad key, stop trying
-          continue;
-        }
-      }
+    const groqKey = process.env.GROQ_API_KEY;
+    if (!groqKey) {
+      return res.status(500).json({
+        message: 'GROQ_API_KEY not configured. Get a free key from console.groq.com and add it to Railway variables.'
+      });
     }
 
-    // Try OpenRouter as backup
-    if (!raw && openrouterKey) {
-      console.log('Trying OpenRouter...');
-      raw = await tryOpenRouter(imageBase64, mimeType, openrouterKey);
-      if (raw) usedModel = 'openrouter';
+    console.log('Trying Groq vision...');
+    let raw = '';
+
+    try {
+      raw = await tryGroq(imageBase64, mimeType, groqKey);
+    } catch (err) {
+      const msg = err.response?.data?.error?.message || err.message;
+      console.error('Groq failed:', msg);
+      return res.status(500).json({ message: 'AI extraction failed: ' + msg });
     }
 
     if (!raw) {
-      return res.status(500).json({
-        message: 'AI extraction failed. Please add a GEMINI_API_KEY from aistudio.google.com to Railway variables.'
-      });
+      return res.status(500).json({ message: 'AI returned empty response. Try again with a clearer image.' });
     }
 
     // Clean and parse JSON
     const clean = raw.replace(/```json/g, '').replace(/```/g, '').trim();
     const match = clean.match(/\[[\s\S]*\]/);
-    if (!match) return res.status(500).json({ message: 'Could not read timetable. Try a clearer image.' });
+    if (!match) {
+      return res.status(500).json({ message: 'Could not parse timetable. Make sure the image is clear and readable.' });
+    }
 
     const classes = JSON.parse(match[0]);
     if (!Array.isArray(classes) || classes.length === 0) {
-      return res.status(500).json({ message: 'No classes found. Try a clearer image.' });
+      return res.status(500).json({ message: 'No classes found in image. Try a clearer photo.' });
     }
 
-    res.json({ classes, count: classes.length, model: usedModel });
+    res.json({ classes, count: classes.length, model: 'groq:llama-4-scout' });
   } catch (err) {
     console.error('AI extraction error:', err.response?.data || err.message);
     res.status(500).json({ message: 'AI extraction failed: ' + (err.response?.data?.error?.message || err.message) });
