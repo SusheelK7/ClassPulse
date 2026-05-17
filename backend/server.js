@@ -7,21 +7,9 @@ dotenv.config();
 
 const app = express();
 
-// Allow all vercel deployments + localhost
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    if (
-      origin.includes('vercel.app') ||
-      origin.includes('localhost') ||
-      origin.includes('railway.app')
-    ) {
-      return callback(null, true);
-    }
-    callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true
-}));
+// Allow ALL origins
+app.use(cors());
+app.options('*', cors());
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -30,7 +18,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/classes', require('./routes/classes'));
 app.use('/api/ai', require('./routes/ai'));
 
-app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', message: 'Server running' }));
 
 function ensureDbName(uri) {
   if (!uri) return 'mongodb://localhost:27017/classpulse';
