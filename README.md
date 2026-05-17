@@ -3,9 +3,13 @@
 A full-stack web application that helps university students manage their class timetable with live tracking, AI-powered import, and smart notifications.
 
 ![ClassPulse](https://img.shields.io/badge/ClassPulse-Student%20Schedule-blue?style=for-the-badge)
+
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat&logo=react)
+
 ![Node.js](https://img.shields.io/badge/Node.js-20-339933?style=flat&logo=node.js)
+
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=flat&logo=mongodb)
+
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-06B6D4?style=flat&logo=tailwindcss)
 
 ## 🔗 Live Demo
