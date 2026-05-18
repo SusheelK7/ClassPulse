@@ -3,12 +3,12 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ClassProvider } from './context/ClassContext';
-import { NotificationProvider } from './context/NotificationContext';
-import { NotificationQueueProvider } from './context/NotificationQueueContext';
+import { NoteProvider } from './context/NoteContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Schedule from './pages/Schedule';
+import Notes from './pages/Notes';
 import Layout from './components/Layout';
 
 function PrivateRoute({ children }) {
@@ -27,22 +27,21 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <NotificationProvider>
-          <NotificationQueueProvider>
-            <ClassProvider>
-              <BrowserRouter>
-                <Toaster position="top-right" toastOptions={{ className: 'dark:bg-gray-800 dark:text-white' }} />
-                <Routes>
-                  <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-                  <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-                  <Route path="/" element={<PrivateRoute><Layout><Dashboard /></Layout></PrivateRoute>} />
-                  <Route path="/schedule" element={<PrivateRoute><Layout><Schedule /></Layout></PrivateRoute>} />
-                  <Route path="*" element={<Navigate to="/" />} />
-                </Routes>
-              </BrowserRouter>
-            </ClassProvider>
-          </NotificationQueueProvider>
-        </NotificationProvider>
+        <ClassProvider>
+          <NoteProvider>
+            <BrowserRouter>
+              <Toaster position="top-right" toastOptions={{ className: 'dark:bg-gray-800 dark:text-white' }} />
+              <Routes>
+                <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+                <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+                <Route path="/" element={<PrivateRoute><Layout><Dashboard /></Layout></PrivateRoute>} />
+                <Route path="/schedule" element={<PrivateRoute><Layout><Schedule /></Layout></PrivateRoute>} />
+                <Route path="/notes" element={<PrivateRoute><Layout><Notes /></Layout></PrivateRoute>} />
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+            </BrowserRouter>
+          </NoteProvider>
+        </ClassProvider>
       </AuthProvider>
     </ThemeProvider>
   );

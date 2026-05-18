@@ -7,7 +7,6 @@ dotenv.config();
 
 const app = express();
 
-// Allow ALL origins
 app.use(cors());
 app.options('*', cors());
 
@@ -17,6 +16,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/classes', require('./routes/classes'));
 app.use('/api/ai', require('./routes/ai'));
+app.use('/api/notes', require('./routes/notes'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', message: 'Server running' }));
 
