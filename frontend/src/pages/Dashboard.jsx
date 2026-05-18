@@ -3,7 +3,7 @@ import { useClasses } from '../context/ClassContext';
 import { useAuth } from '../context/AuthContext';
 import { useNotificationSettings } from '../context/NotificationContext';
 import { useNotificationQueue } from '../context/NotificationQueueContext';
-import { useNotification } from '../hooks/useNotification';
+import { useNotifications } from '../hooks/useNotifications';
 import { getCurrentDay, getCurrentTimeMinutes, classStatus, DAY_NAMES, formatTime, minutesUntil, durationMinutes, progressPercent } from '../utils/timeUtils';
 import { Clock, BookOpen, CalendarDays, Zap, Plus, Sparkles, ChevronRight, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
