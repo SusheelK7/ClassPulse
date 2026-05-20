@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useClasses } from '../context/ClassContext';
 import { useAuth } from '../context/AuthContext';
-import { useNotificationSettings } from '../context/NotificationContext';
+
 import { useNotificationQueue } from '../context/NotificationQueueContext';
 import { useNotifications } from '../hooks/useNotifications';
 import { getCurrentDay, getCurrentTimeMinutes, classStatus, DAY_NAMES, formatTime, minutesUntil, durationMinutes, progressPercent } from '../utils/timeUtils';
@@ -10,7 +10,6 @@ import { Link } from 'react-router-dom';
 import ClassCard from '../components/ClassCard';
 import ClassFormModal from '../components/ClassFormModal';
 import AIUploadModal from '../components/AIUploadModal';
-import NotificationPopup from '../components/NotificationPopup';
 import { useClasses as useClassesCtx } from '../context/ClassContext';
 
 function useTime() {
@@ -25,7 +24,7 @@ function useTime() {
 export default function Dashboard() {
   const { classes, loading, fetchClasses, addClass, updateClass, deleteClass } = useClasses();
   const { user } = useAuth();
-  const { notificationsEnabled, requestNotificationPermission } = useNotificationSettings();
+  
   const { currentNotification, dismissCurrentNotification, remindLater } = useNotificationQueue();
   const { day, minutes } = useTime();
   const [showAdd, setShowAdd] = useState(false);
@@ -179,13 +178,13 @@ export default function Dashboard() {
       <ClassFormModal isOpen={showAdd} onClose={() => { setShowAdd(false); setEditCls(null); }} onSave={handleSave} initialData={editCls} />
       <AIUploadModal isOpen={showAI} onClose={() => setShowAI(false)} />
       
-      {currentNotification && (
+      {/* {currentNotification && (
         <NotificationPopup
           notification={currentNotification}
           onDismiss={dismissCurrentNotification}
           onRemindLater={() => remindLater(currentNotification, 300000)}
         />
-      )}
+      )} */}
     </div>
   );
 }
