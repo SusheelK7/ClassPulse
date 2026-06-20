@@ -4,6 +4,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ClassProvider } from './context/ClassContext';
 import { NoteProvider } from './context/NoteContext';
+import { NotificationProvider } from './context/NotificationContext';
+import { NotificationQueueProvider } from './context/NotificationQueueContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -29,9 +31,11 @@ export default function App() {
       <AuthProvider>
         <ClassProvider>
           <NoteProvider>
-            <BrowserRouter>
-              <Toaster position="top-right" toastOptions={{ className: 'dark:bg-gray-800 dark:text-white' }} />
-              <Routes>
+            <NotificationProvider>
+              <NotificationQueueProvider>
+                <BrowserRouter>
+                  <Toaster position="top-right" toastOptions={{ className: 'dark:bg-gray-800 dark:text-white' }} />
+                  <Routes>
                 <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
                 <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
                 <Route path="/" element={<PrivateRoute><Layout><Dashboard /></Layout></PrivateRoute>} />
@@ -40,6 +44,8 @@ export default function App() {
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </BrowserRouter>
+              </NotificationQueueProvider>
+            </NotificationProvider>
           </NoteProvider>
         </ClassProvider>
       </AuthProvider>

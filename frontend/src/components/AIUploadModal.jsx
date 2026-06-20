@@ -11,6 +11,7 @@ export default function AIUploadModal({ isOpen, onClose }) {
   const [step, setStep] = useState(STEPS.UPLOAD);
   const [preview, setPreview] = useState(null);
   const [extracted, setExtracted] = useState([]);
+  const [rawCount, setRawCount] = useState(0);
   const [error, setError] = useState('');
   const [clearExisting, setClearExisting] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -31,6 +32,7 @@ export default function AIUploadModal({ isOpen, onClose }) {
         const mimeType = file.type || 'image/jpeg';
         const { data } = await api.post('/ai/extract-timetable', { imageBase64: base64, mimeType });
         setExtracted(data.classes);
+        setRawCount(data.rawCount || data.classes.length);
         setStep(STEPS.REVIEW);
       } catch (err) {
         setError(err.response?.data?.message || 'AI extraction failed. Check your API key.');
@@ -51,7 +53,7 @@ export default function AIUploadModal({ isOpen, onClose }) {
   };
 
   const handleClose = () => {
-    setStep(STEPS.UPLOAD); setPreview(null); setExtracted([]); setError(''); setClearExisting(false);
+    setStep(STEPS.UPLOAD); setPreview(null); setExtracted([]); setRawCount(0); setError(''); setClearExisting(false);
     onClose();
   };
 
@@ -101,7 +103,16 @@ export default function AIUploadModal({ isOpen, onClose }) {
           {step === STEPS.REVIEW && (
             <div>
               <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300"><CheckCircle size={15} className="inline text-green-500 mr-1" />{extracted.length} classes found</p>
+                <div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <CheckCircle size={15} className="inline text-green-500 mr-1" />{extracted.length} classes ready to import
+                  </p>
+                  {rawCount > extracted.length && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      Cleaned up {rawCount - extracted.length} duplicate or split entries from {rawCount} AI detections
+                    </p>
+                  )}
+                </div>
                 <label className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 cursor-pointer">
                   <input type="checkbox" checked={clearExisting} onChange={e => setClearExisting(e.target.checked)} className="rounded" />
                   Replace existing classes

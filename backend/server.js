@@ -22,12 +22,15 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok', message: 'Server r
 
 function ensureDbName(uri) {
   if (!uri) return 'mongodb://localhost:27017/classpulse';
-  try {
-    const url = new URL(uri);
-    if (url.pathname && url.pathname !== '/' && url.pathname.length > 1) return uri;
-    url.pathname = '/classpulse';
-    return url.toString();
-  } catch { return uri; }
+  if (/mongodb(\+srv)?:\/\/[^/]+\/[^/?]+/.test(uri)) return uri;
+  const qIndex = uri.indexOf('?');
+  if (qIndex === -1) {
+    return uri.endsWith('/') ? `${uri}classpulse` : `${uri}/classpulse`;
+  }
+  const base = uri.slice(0, qIndex);
+  const query = uri.slice(qIndex);
+  const withDb = base.endsWith('/') ? `${base}classpulse` : `${base}/classpulse`;
+  return withDb + query;
 }
 
 mongoose.connect(ensureDbName(process.env.MONGODB_URI))

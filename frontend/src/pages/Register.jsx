@@ -3,12 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Sun, Moon, BookOpen, AlertCircle } from 'lucide-react';
+import { validatePassword, PASSWORD_HINT } from '../utils/passwordValidation';
 
 export default function Register() {
   const { register } = useAuth();
   const { dark, toggle } = useTheme();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', password: '', program: '', semester: '', section: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '', program: '', semester: '', section: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -17,7 +18,11 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (form.password.length < 6) return setError('Password must be at least 6 characters');
+
+    const passwordCheck = validatePassword(form.password);
+    if (!passwordCheck.valid) return setError(passwordCheck.message);
+    if (form.password !== form.confirmPassword) return setError('Passwords do not match');
+
     setLoading(true);
     try { await register(form); navigate('/'); }
     catch (err) { setError(err.response?.data?.message || 'Registration failed'); }
@@ -49,7 +54,15 @@ export default function Register() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div><label className={labelCls}>Full name</label><input required className={inputCls} placeholder="Your name" value={form.name} onChange={set('name')} /></div>
             <div><label className={labelCls}>Email</label><input type="email" required className={inputCls} placeholder="student@university.edu" value={form.email} onChange={set('email')} /></div>
-            <div><label className={labelCls}>Password</label><input type="password" required className={inputCls} placeholder="Min. 6 characters" value={form.password} onChange={set('password')} /></div>
+            <div>
+              <label className={labelCls}>Password</label>
+              <input type="password" required className={inputCls} placeholder="Create a strong password" value={form.password} onChange={set('password')} />
+              <p className="text-xs text-gray-400 mt-1.5">{PASSWORD_HINT}</p>
+            </div>
+            <div>
+              <label className={labelCls}>Confirm password</label>
+              <input type="password" required className={inputCls} placeholder="Re-enter your password" value={form.confirmPassword} onChange={set('confirmPassword')} />
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div><label className={labelCls}>Program</label><input className={inputCls} placeholder="e.g. BSCS" value={form.program} onChange={set('program')} /></div>
               <div><label className={labelCls}>Semester</label><input className={inputCls} placeholder="e.g. Fall 2025" value={form.semester} onChange={set('semester')} /></div>

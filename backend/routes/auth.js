@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { validatePassword } = require('../utils/passwordValidation');
 const router = express.Router();
 
 const signToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET || 'secret123', { expiresIn: '7d' });
@@ -19,11 +20,18 @@ const formatUser = (user) => ({
 
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, program, semester, section } = req.body;
+    const { name, email, password, confirmPassword, program, semester, section } = req.body;
     if (!name || !email || !password) return res.status(400).json({ message: 'Name, email and password required' });
-    const exists = await User.findOne({ email });
+    if (!confirmPassword) return res.status(400).json({ message: 'Please confirm your password' });
+    if (password !== confirmPassword) return res.status(400).json({ message: 'Passwords do not match' });
+
+    const passwordCheck = validatePassword(password);
+    if (!passwordCheck.valid) return res.status(400).json({ message: passwordCheck.message });
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const exists = await User.findOne({ email: normalizedEmail });
     if (exists) return res.status(400).json({ message: 'Email already registered' });
-    const user = await User.create({ name, email, password, program, semester, section });
+    const user = await User.create({ name, email: normalizedEmail, password, program, semester, section });
     const token = signToken(user._id);
     res.status(201).json({ token, user: formatUser(user) });
   } catch (err) {
@@ -34,8 +42,11 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user || !(await user.comparePassword(password))) return res.status(400).json({ message: 'Invalid email or password' });
+    if (!email || !password) return res.status(400).json({ message: 'Email and password required' });
+
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
+    if (!user) return res.status(400).json({ message: 'No account found with this email. Please register first.' });
+    if (!(await user.comparePassword(password))) return res.status(400).json({ message: 'Incorrect password' });
     const token = signToken(user._id);
     res.json({ token, user: formatUser(user) });
   } catch (err) {
