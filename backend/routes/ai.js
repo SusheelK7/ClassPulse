@@ -39,6 +39,40 @@ Each object must have exactly these fields:
 Example for a 3-hour merged lab cell:
 [{"day":"Mo","startTime":"14:00","endTime":"17:00","subject":"Application of Information and Communication Technologies Lab","code":"CS181L","room":"Lab 11","teacher":"Ms. Nimra Shafqat","color":"#10B981"}]`;
 
+// Gemini models in order of priority (blazing fast flash-lite first, then standard flash)
+const GEMINI_MODELS = [
+  'gemini-3.5-flash-lite',
+  'gemini-3.1-flash-lite',
+  'gemini-3.6-flash',
+  'gemini-3.5-flash',
+  'gemini-flash-latest'
+];
+
+async function tryGemini(model, imageBase64, mimeType, apiKey) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const response = await axios.post(
+    url,
+    {
+      contents: [{
+        parts: [
+          { inline_data: { mime_type: mimeType || 'image/jpeg', data: imageBase64 } },
+          { text: PROMPT }
+        ]
+      }],
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 4000,
+        responseMimeType: 'application/json'
+      }
+    },
+    {
+      headers: { 'Content-Type': 'application/json' },
+      timeout: 35000
+    }
+  );
+  return response.data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
 async function tryGroq(imageBase64, mimeType, apiKey) {
   const response = await axios.post(
     'https://api.groq.com/openai/v1/chat/completions',
@@ -70,26 +104,54 @@ router.post('/extract-timetable', auth, async (req, res) => {
     const { imageBase64, mimeType } = req.body;
     if (!imageBase64) return res.status(400).json({ message: 'Image data required' });
 
+    const geminiKey = process.env.GEMINI_API_KEY;
     const groqKey = process.env.GROQ_API_KEY;
-    if (!groqKey) {
+
+    if (!geminiKey && !groqKey) {
       return res.status(500).json({
-        message: 'GROQ_API_KEY not configured. Get a free key from console.groq.com and add it to Railway variables.'
+        message: 'No AI API Key configured. Please add GEMINI_API_KEY or GROQ_API_KEY in backend/.env.'
       });
     }
 
-    console.log('Trying Groq vision...');
     let raw = '';
+    let usedModel = '';
 
-    try {
-      raw = await tryGroq(imageBase64, mimeType, groqKey);
-    } catch (err) {
-      const msg = err.response?.data?.error?.message || err.message;
-      console.error('Groq failed:', msg);
-      return res.status(500).json({ message: 'AI extraction failed: ' + msg });
+    // 1. Try Gemini first if key exists
+    if (geminiKey) {
+      for (const model of GEMINI_MODELS) {
+        try {
+          console.log(`Trying Gemini model: ${model}...`);
+          raw = await tryGemini(model, imageBase64, mimeType, geminiKey);
+          if (raw && (raw.includes('[') || raw.trim().startsWith('{'))) {
+            usedModel = `gemini:${model}`;
+            console.log(`Success with Gemini model: ${model}`);
+            break;
+          }
+        } catch (err) {
+          const status = err.response?.status;
+          const msg = err.response?.data?.error?.message || err.message;
+          console.warn(`Gemini ${model} failed (${status}): ${msg}`);
+          if (status === 401 || status === 403) break; // invalid key, don't retry other models
+        }
+      }
+    }
+
+    // 2. Fallback to Groq if Gemini did not produce a result and Groq key is present
+    if (!raw && groqKey) {
+      console.log('Falling back to Groq vision...');
+      try {
+        raw = await tryGroq(imageBase64, mimeType, groqKey);
+        if (raw) usedModel = 'groq:llama-4-scout';
+      } catch (err) {
+        const msg = err.response?.data?.error?.message || err.message;
+        console.error('Groq fallback failed:', msg);
+      }
     }
 
     if (!raw) {
-      return res.status(500).json({ message: 'AI returned empty response. Try again with a clearer image.' });
+      return res.status(500).json({
+        message: 'AI extraction failed. Please ensure your image is clear and try again.'
+      });
     }
 
     let rawClasses;
@@ -109,8 +171,8 @@ router.post('/extract-timetable', auth, async (req, res) => {
       return res.status(500).json({ message: 'No valid classes found after parsing. Try a clearer photo.' });
     }
 
-    console.log(`Timetable normalized: ${rawCount} raw -> ${normalizedCount} classes`);
-    res.json({ classes, count: classes.length, rawCount, model: 'groq:llama-4-scout' });
+    console.log(`Timetable normalized: ${rawCount} raw -> ${normalizedCount} classes using ${usedModel}`);
+    res.json({ classes, count: classes.length, rawCount, model: usedModel });
   } catch (err) {
     console.error('AI extraction error:', err.response?.data || err.message);
     res.status(500).json({ message: 'AI extraction failed: ' + (err.response?.data?.error?.message || err.message) });
