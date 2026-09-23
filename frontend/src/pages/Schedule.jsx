@@ -54,7 +54,7 @@ export default function Schedule() {
       <div className="flex gap-1.5 mb-5 overflow-x-auto pb-1 scrollbar-hide">
         {DAY_SHORT.map(d => (
           <button key={d} onClick={() => setActiveDay(d)}
-            className={`flex flex-col items-center px-3 py-2.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap min-w-[52px] ${activeDay === d ? 'bg-primary-600 text-white shadow-sm' : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-primary-300 dark:hover:border-primary-700'} ${d === currentDay && activeDay !== d ? 'ring-2 ring-primary-300 dark:ring-primary-700' : ''}`}>
+            className={`flex flex-col items-center px-3 py-2.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap min-w-[52px] ${activeDay === d ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25 dark:shadow-[0_0_20px_rgba(37,99,235,0.4)]' : 'bg-white/90 dark:bg-[#0d1222]/80 backdrop-blur-md border border-gray-200/80 dark:border-gray-800/80 text-gray-600 dark:text-gray-400 hover:border-primary-300 dark:hover:border-primary-600 shadow-sm dark:shadow-[0_4px_15px_rgba(0,0,0,0.3)]'} ${d === currentDay && activeDay !== d ? 'ring-2 ring-primary-300 dark:ring-primary-700' : ''}`}>
             <span>{d}</span>
             {dayCount(d) > 0 && <span className={`mt-0.5 text-[10px] ${activeDay === d ? 'text-primary-200' : 'text-gray-400'}`}>{dayCount(d)}</span>}
           </button>
@@ -66,7 +66,7 @@ export default function Schedule() {
         <div className="relative mb-5">
           <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
           <input value={search} onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200/80 dark:border-gray-800/80 bg-white/90 dark:bg-[#0d1222]/80 backdrop-blur-md text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] transition"
             placeholder="Search by subject, teacher, or room..." />
         </div>
       )}

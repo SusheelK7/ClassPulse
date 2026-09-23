@@ -3,11 +3,57 @@
 @tailwind utilities;
 
 @layer base {
-  * { @apply border-gray-200 dark:border-gray-700; }
-  body { @apply bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans antialiased; }
+  * { @apply border-gray-200 dark:border-gray-800/80; }
+  body { 
+    @apply bg-gray-50 dark:bg-[#060813] text-gray-900 dark:text-gray-100 font-sans antialiased; 
+    min-height: 100vh;
+  }
+}
+
+@keyframes ambient-slow {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(25px, -15px) scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes ambient-delayed {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(-20px, 20px) scale(1.1);
+    opacity: 0.95;
+  }
+}
+
+.animate-ambient-slow {
+  animation: ambient-slow 16s ease-in-out infinite;
+}
+
+.animate-ambient-delayed {
+  animation: ambient-delayed 20s ease-in-out infinite;
 }
 
 @layer utilities {
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  /* Dark mode enhanced card shadows & glow effects */
+  .dark-card-shadow {
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+
+  .dark-card-shadow-hover {
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.7), 0 0 20px -3px rgba(59, 130, 246, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
+
+  .dark-glow-shadow {
+    box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.8), 0 0 35px -5px rgba(37, 99, 235, 0.2);
+  }
 }

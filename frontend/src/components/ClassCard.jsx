@@ -11,10 +11,10 @@ export default function ClassCard({ cls, status, onEdit, onDelete }) {
   const classNotes = notes.filter(n => n.classId === cls._id);
 
   const statusStyles = {
-    current: 'ring-2 ring-green-400 dark:ring-green-500 bg-white dark:bg-gray-900',
-    upcoming: 'bg-white dark:bg-gray-900',
-    ended: 'bg-gray-50 dark:bg-gray-900/50 opacity-60',
-    other: 'bg-white dark:bg-gray-900'
+    current: 'ring-2 ring-green-400 dark:ring-green-500 bg-white/95 dark:bg-[#0d1222]/85 backdrop-blur-md shadow-md dark:shadow-[0_8px_30px_rgba(0,0,0,0.5),0_0_20px_rgba(34,197,94,0.12)]',
+    upcoming: 'bg-white/95 dark:bg-[#0d1222]/75 backdrop-blur-md shadow-sm dark:shadow-[0_8px_25px_rgba(0,0,0,0.45)] hover:dark:shadow-[0_12px_32px_rgba(0,0,0,0.65),0_0_20px_rgba(59,130,246,0.12)] hover:-translate-y-0.5',
+    ended: 'bg-gray-50/90 dark:bg-[#0d1222]/40 backdrop-blur-sm opacity-60 shadow-none',
+    other: 'bg-white/95 dark:bg-[#0d1222]/75 backdrop-blur-md shadow-sm dark:shadow-[0_8px_25px_rgba(0,0,0,0.45)]'
   };
 
   const statusBadge = {
@@ -26,7 +26,7 @@ export default function ClassCard({ cls, status, onEdit, onDelete }) {
 
   return (
     <>
-      <div className={`relative rounded-2xl border border-gray-200 dark:border-gray-800 p-4 transition-all ${statusStyles[status]}`}>
+      <div className={`relative rounded-2xl border border-gray-200/80 dark:border-gray-800/80 p-4 transition-all duration-200 ${statusStyles[status]}`}>
         {status === 'current' && (
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-100 dark:bg-gray-800 rounded-b-2xl overflow-hidden">
             <div className="h-full bg-green-400 dark:bg-green-500 transition-all duration-1000 rounded-full" style={{ width: `${progress}%` }} />

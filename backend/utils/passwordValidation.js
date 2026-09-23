@@ -1,6 +1,6 @@
 function validatePassword(password) {
-  if (!password || password.length <= 6) {
-    return { valid: false, message: 'Password must be more than 6 characters' };
+  if (!password || password.length < 8) {
+    return { valid: false, message: 'Password must be at least 8 characters' };
   }
   if (!/[A-Z]/.test(password)) {
     return { valid: false, message: 'Password must include at least 1 uppercase letter' };

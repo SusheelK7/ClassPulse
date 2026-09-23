@@ -30,7 +30,7 @@ function getWeekDates() {
 function NoteCard({ note, onEdit, onDelete }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4 hover:shadow-md transition-shadow">
+    <div className="bg-white/95 dark:bg-[#0d1222]/80 backdrop-blur-md rounded-2xl border border-gray-200/80 dark:border-gray-800/80 p-4 shadow-sm dark:shadow-[0_8px_25px_rgba(0,0,0,0.45)] hover:dark:shadow-[0_12px_32px_rgba(0,0,0,0.65),0_0_20px_rgba(59,130,246,0.12)] hover:-translate-y-0.5 transition-all duration-200">
       <div className="flex items-start gap-3 mb-2">
         <div className="w-3 h-3 rounded-full shrink-0 mt-1" style={{ backgroundColor: note.color || '#F59E0B' }} />
         <div className="flex-1 min-w-0">
@@ -108,7 +108,7 @@ export default function Notes() {
       </div>
 
       {/* Weekly calendar */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4 mb-6">
+      <div className="bg-white/95 dark:bg-[#0d1222]/80 backdrop-blur-md rounded-2xl border border-gray-200/80 dark:border-gray-800/80 p-4 mb-6 shadow-sm dark:shadow-[0_8px_25px_rgba(0,0,0,0.45)]">
         <div className="flex items-center gap-2 mb-3">
           <Calendar size={15} className="text-primary-500" />
           <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Weekly Calendar</span>
@@ -122,7 +122,7 @@ export default function Notes() {
             const classCount = classes.filter(c => c.day === day).length;
             return (
               <button key={day} onClick={() => setActiveDay(day)}
-                className={`flex flex-col items-center p-2 rounded-xl transition-all ${isActive ? 'bg-primary-600 text-white' : isToday ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'}`}>
+                className={`flex flex-col items-center p-2 rounded-xl transition-all ${isActive ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25 dark:shadow-[0_0_20px_rgba(37,99,235,0.4)]' : isToday ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-300 border border-primary-200/50 dark:border-primary-700/50' : 'hover:bg-gray-50 dark:hover:bg-gray-800/60 text-gray-600 dark:text-gray-400'}`}>
                 <span className="text-[10px] font-medium mb-1">{day}</span>
                 <span className={`text-lg font-display font-600 leading-none ${isActive ? 'text-white' : ''}`}>{date.getDate()}</span>
                 <div className="flex gap-1 mt-1.5">
@@ -133,7 +133,7 @@ export default function Notes() {
             );
           })}
         </div>
-        <div className="flex gap-4 mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex gap-4 mt-2 pt-2 border-t border-gray-100 dark:border-gray-800/80">
           <span className="text-xs text-gray-400 flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-primary-400 inline-block" />Classes</span>
           <span className="text-xs text-gray-400 flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />Notes</span>
         </div>
@@ -146,7 +146,7 @@ export default function Notes() {
             <BookOpen size={14} className="text-primary-500" />{DAY_NAMES[activeDay]} Classes
           </h2>
           {dayClasses.length === 0 ? (
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 text-center">
+            <div className="bg-white/95 dark:bg-[#0d1222]/80 backdrop-blur-md border border-gray-200/80 dark:border-gray-800/80 rounded-2xl p-4 text-center shadow-sm dark:shadow-[0_8px_25px_rgba(0,0,0,0.4)]">
               <p className="text-xs text-gray-400">No classes on {DAY_NAMES[activeDay]}</p>
             </div>
           ) : (
@@ -154,7 +154,7 @@ export default function Notes() {
               {dayClasses.map(cls => {
                 const clsNotes = notes.filter(n => n.classId === cls._id);
                 return (
-                  <div key={cls._id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-3">
+                  <div key={cls._id} className="bg-white/95 dark:bg-[#0d1222]/80 backdrop-blur-md border border-gray-200/80 dark:border-gray-800/80 rounded-2xl p-3 shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.35)]">
                     <div className="flex items-start gap-2 mb-2">
                       <div className="w-2.5 h-2.5 rounded-full mt-1 shrink-0" style={{ backgroundColor: cls.color || '#3B82F6' }} />
                       <div className="flex-1 min-w-0">

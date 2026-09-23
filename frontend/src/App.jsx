@@ -12,6 +12,10 @@ import Dashboard from './pages/Dashboard';
 import Schedule from './pages/Schedule';
 import Notes from './pages/Notes';
 import Layout from './components/Layout';
+import VerifyEmail from './pages/VerifyEmail';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import BackgroundEffects from './components/BackgroundEffects';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -28,6 +32,7 @@ function PublicRoute({ children }) {
 export default function App() {
   return (
     <ThemeProvider>
+      <BackgroundEffects />
       <AuthProvider>
         <ClassProvider>
           <NoteProvider>
@@ -36,14 +41,17 @@ export default function App() {
                 <BrowserRouter>
                   <Toaster position="top-right" toastOptions={{ className: 'dark:bg-gray-800 dark:text-white' }} />
                   <Routes>
-                <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-                <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-                <Route path="/" element={<PrivateRoute><Layout><Dashboard /></Layout></PrivateRoute>} />
-                <Route path="/schedule" element={<PrivateRoute><Layout><Schedule /></Layout></PrivateRoute>} />
-                <Route path="/notes" element={<PrivateRoute><Layout><Notes /></Layout></PrivateRoute>} />
-                <Route path="*" element={<Navigate to="/" />} />
-              </Routes>
-            </BrowserRouter>
+                    <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+                    <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+                    <Route path="/" element={<PrivateRoute><Layout><Dashboard /></Layout></PrivateRoute>} />
+                    <Route path="/schedule" element={<PrivateRoute><Layout><Schedule /></Layout></PrivateRoute>} />
+                    <Route path="/notes" element={<PrivateRoute><Layout><Notes /></Layout></PrivateRoute>} />
+                    <Route path="/verify-email" element={<VerifyEmail />} />
+                    <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+                    <Route path="/reset-password" element={<PublicRoute><ResetPassword /></PublicRoute>} />
+                    <Route path="*" element={<Navigate to="/" />} />
+                  </Routes>
+                </BrowserRouter>
               </NotificationQueueProvider>
             </NotificationProvider>
           </NoteProvider>

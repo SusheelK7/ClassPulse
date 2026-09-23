@@ -81,7 +81,7 @@ export default function Dashboard() {
           { label: 'Remaining', value: upcomingClasses.length, icon: Clock, color: 'text-amber-500' },
           { label: 'Total', value: classes.length, icon: BookOpen, color: 'text-purple-500' },
         ].map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4">
+          <div key={label} className="bg-white/95 dark:bg-[#0d1222]/80 backdrop-blur-md rounded-2xl border border-gray-200/80 dark:border-gray-800/80 p-4 shadow-sm dark:shadow-[0_8px_25px_rgba(0,0,0,0.45)] hover:dark:shadow-[0_12px_30px_rgba(0,0,0,0.65),0_0_15px_rgba(59,130,246,0.1)] transition-all duration-200">
             <Icon size={18} className={`${color} mb-2`} />
             <p className="text-2xl font-display font-600 text-gray-900 dark:text-white">{value}</p>
             <p className="text-xs text-gray-400 mt-0.5">{label}</p>
@@ -91,7 +91,7 @@ export default function Dashboard() {
 
       {/* Current class - hero card */}
       {currentClass ? (
-        <div className="bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl p-5 mb-7 text-white">
+        <div className="bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl p-5 mb-7 text-white shadow-lg shadow-primary-500/25 dark:shadow-[0_12px_35px_rgba(37,99,235,0.3),0_4px_20px_rgba(0,0,0,0.7)]">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className="flex items-center gap-1.5 text-xs font-medium bg-white/20 px-2.5 py-1 rounded-full">
@@ -116,7 +116,7 @@ export default function Dashboard() {
           </div>
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 mb-7 text-center">
+        <div className="bg-white/95 dark:bg-[#0d1222]/80 backdrop-blur-md border border-gray-200/80 dark:border-gray-800/80 rounded-2xl p-5 mb-7 text-center shadow-sm dark:shadow-[0_8px_25px_rgba(0,0,0,0.45)]">
           <Zap size={24} className="mx-auto mb-2 text-gray-300 dark:text-gray-600" />
           <p className="text-sm font-medium text-gray-500 dark:text-gray-400">No class running right now</p>
           {nextClass && <p className="text-xs text-gray-400 mt-1">Next: {nextClass.subject} in {minutesUntil(nextClass.startTime, minutes)} mins</p>}

@@ -37,32 +37,32 @@ export default function Layout({ children }) {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <aside className="hidden md:flex flex-col fixed left-0 top-0 h-full w-60 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-30">
-        <div className="p-5 border-b border-gray-100 dark:border-gray-800">
+    <div className="min-h-screen bg-transparent relative">
+      <aside className="hidden md:flex flex-col fixed left-0 top-0 h-full w-60 bg-white/90 dark:bg-[#0c101d]/80 backdrop-blur-xl border-r border-gray-200/80 dark:border-gray-800/80 z-30 shadow-sm dark:shadow-[4px_0_30px_rgba(0,0,0,0.6)]">
+        <div className="p-5 border-b border-gray-100 dark:border-gray-800/80">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-primary-600 rounded-xl flex items-center justify-center shadow-sm">
+            <div className="w-9 h-9 bg-primary-600 rounded-xl flex items-center justify-center shadow-md shadow-primary-500/20">
               <BookOpen size={18} className="text-white" />
             </div>
-            <span className="font-display font-600 text-gray-900 dark:text-white text-lg">ClassPulse</span>
+            <span className="font-display font-600 text-gray-900 dark:text-white text-lg tracking-tight">ClassPulse</span>
           </div>
         </div>
         <nav className="flex-1 p-4 space-y-1">
           {navLinks.map(({ to, icon: Icon, label }) => (
             <Link key={to} to={to}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${isActive(to) ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'}`}>
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${isActive(to) ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-semibold shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-white'}`}>
               <Icon size={18} />{label}
             </Link>
           ))}
         </nav>
-        <div className="p-4 border-t border-gray-100 dark:border-gray-800 space-y-1">
+        <div className="p-4 border-t border-gray-100 dark:border-gray-800/80 space-y-1">
           <NotificationBell classes={classes} />
-          <button onClick={toggle} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          <button onClick={toggle} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/60 transition-colors">
             {dark ? <Sun size={18} /> : <Moon size={18} />}
             {dark ? 'Light mode' : 'Dark mode'}
           </button>
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 mt-2">
-            <div className="w-7 h-7 rounded-lg bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gray-50/90 dark:bg-gray-800/50 border border-gray-100/80 dark:border-gray-700/40 mt-2">
+            <div className="w-7 h-7 rounded-lg bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center">
               <User size={13} className="text-primary-600 dark:text-primary-400" />
             </div>
             <div className="flex-1 min-w-0">
@@ -70,13 +70,13 @@ export default function Layout({ children }) {
               <p className="text-xs text-gray-400 truncate">{user?.section || user?.program || 'Student'}</p>
             </div>
           </div>
-          <button onClick={logout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+          <button onClick={logout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
             <LogOut size={18} />Log out
           </button>
         </div>
       </aside>
 
-      <header className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 z-30">
+      <header className="md:hidden fixed top-0 left-0 right-0 h-14 bg-white/90 dark:bg-[#0c101d]/85 backdrop-blur-xl border-b border-gray-200/80 dark:border-gray-800/80 flex items-center justify-between px-4 z-30 shadow-sm dark:shadow-[0_4px_25px_rgba(0,0,0,0.5)]">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center"><BookOpen size={16} className="text-white" /></div>
           <span className="font-display font-600 text-gray-900 dark:text-white">ClassPulse</span>
@@ -90,10 +90,10 @@ export default function Layout({ children }) {
 
       {menuOpen && (
         <div className="md:hidden fixed inset-0 z-20 pt-14">
-          <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 p-4 space-y-1">
+          <div className="bg-white/95 dark:bg-[#0c101d]/95 backdrop-blur-2xl border-b border-gray-200 dark:border-gray-800/80 p-4 space-y-1 shadow-2xl dark:shadow-black/70">
             {navLinks.map(({ to, icon: Icon, label }) => (
               <Link key={to} to={to} onClick={() => setMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${isActive(to) ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400' : 'text-gray-600 dark:text-gray-400'}`}>
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${isActive(to) ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-semibold' : 'text-gray-600 dark:text-gray-400'}`}>
                 <Icon size={18} />{label}
               </Link>
             ))}
