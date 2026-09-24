@@ -11,6 +11,7 @@ import ClassCard from '../components/ClassCard';
 import ClassFormModal from '../components/ClassFormModal';
 import AIUploadModal from '../components/AIUploadModal';
 import NotificationPopup from '../components/NotificationPopup';
+import ClassDetailModal from '../components/ClassDetailModal';
 
 function useTime() {
   const [now, setNow] = useState({ day: getCurrentDay(), minutes: getCurrentTimeMinutes() });
@@ -30,6 +31,7 @@ export default function Dashboard() {
   const [showAdd, setShowAdd] = useState(false);
   const [showAI, setShowAI] = useState(false);
   const [editCls, setEditCls] = useState(null);
+  const [detailModalCls, setDetailModalCls] = useState(null);
 
   // Enable notifications
   useNotifications(classes);
@@ -94,16 +96,38 @@ export default function Dashboard() {
         <div className="bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl p-5 mb-7 text-white shadow-lg shadow-primary-500/25 dark:shadow-[0_12px_35px_rgba(37,99,235,0.3),0_4px_20px_rgba(0,0,0,0.7)]">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <span className="flex items-center gap-1.5 text-xs font-medium bg-white/20 px-2.5 py-1 rounded-full">
+              <span className="flex items-center gap-1.5 text-xs font-semibold bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-sm">
                 <span className="w-1.5 h-1.5 bg-green-300 rounded-full animate-pulse" />Live now
               </span>
             </div>
-            <span className="text-xs text-primary-200">{formatTime(currentClass.startTime)} – {formatTime(currentClass.endTime)}</span>
+            <span className="text-xs font-medium text-primary-100">{formatTime(currentClass.startTime)} – {formatTime(currentClass.endTime)}</span>
           </div>
-          <h2 className="text-xl font-display font-600 mb-1">{currentClass.subject}</h2>
-          <div className="flex items-center gap-3 text-sm text-primary-200 mb-4 flex-wrap">
-            {currentClass.room && <span>{currentClass.room}</span>}
-            {currentClass.teacher && <span>{currentClass.teacher}</span>}
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <h2
+              onClick={() => setDetailModalCls(currentClass)}
+              className="text-xl font-display font-bold leading-tight cursor-pointer hover:underline"
+              title="Click to view full class details"
+            >
+              {currentClass.subject}
+            </h2>
+            <button
+              onClick={() => setDetailModalCls(currentClass)}
+              className="shrink-0 text-xs font-semibold px-2.5 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg backdrop-blur-sm transition-all shadow-xs"
+            >
+              More details
+            </button>
+          </div>
+          <div className="flex items-center gap-2.5 text-sm text-primary-100 mb-4 flex-wrap">
+            {currentClass.room && (
+              <span className="inline-flex items-center gap-1 bg-black/20 px-2.5 py-1 rounded-lg text-xs font-medium backdrop-blur-sm">
+                Room: {currentClass.room}
+              </span>
+            )}
+            {currentClass.teacher && (
+              <span className="inline-flex items-center gap-1 bg-black/20 px-2.5 py-1 rounded-lg text-xs font-medium backdrop-blur-sm">
+                Teacher: {currentClass.teacher}
+              </span>
+            )}
           </div>
           <div className="space-y-1">
             <div className="flex justify-between text-xs text-primary-200">
@@ -178,6 +202,15 @@ export default function Dashboard() {
       <ClassFormModal isOpen={showAdd} onClose={() => { setShowAdd(false); setEditCls(null); }} onSave={handleSave} initialData={editCls} />
       <AIUploadModal isOpen={showAI} onClose={() => setShowAI(false)} />
       
+      <ClassDetailModal
+        isOpen={!!detailModalCls}
+        onClose={() => setDetailModalCls(null)}
+        cls={detailModalCls}
+        status={currentClass?._id === detailModalCls?._id ? 'current' : 'other'}
+        onEdit={(c) => { setEditCls(c); setShowAdd(true); }}
+        onDelete={deleteClass}
+      />
+
       {currentNotification && (
         <NotificationPopup
           notification={currentNotification}

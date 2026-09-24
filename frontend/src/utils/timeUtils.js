@@ -46,9 +46,20 @@ export function durationMinutes(start, end) {
   return timeToMinutes(end) - timeToMinutes(start);
 }
 
+export function formatDuration(start, end) {
+  const mins = durationMinutes(start, end);
+  if (mins <= 0) return '';
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  if (h > 0 && m > 0) return `${h}h ${m}m`;
+  if (h > 0) return `${h}h`;
+  return `${m}m`;
+}
+
 export function progressPercent(start, end, current) {
   const s = timeToMinutes(start);
   const e = timeToMinutes(end);
   const pct = ((current - s) / (e - s)) * 100;
   return Math.min(100, Math.max(0, pct));
 }
+
