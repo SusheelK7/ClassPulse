@@ -34,6 +34,7 @@ app.use('/api/classes', require('./routes/classes'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/notes', require('./routes/notes'));
 
+app.get('/', (req, res) => res.json({ name: 'ClassPulse API', status: 'online', health: '/api/health' }));
 app.get('/api/health', (req, res) => res.json({ status: 'ok', message: 'Server running' }));
 
 function ensureDbName(uri) {
