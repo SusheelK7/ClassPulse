@@ -34,9 +34,29 @@ function ensureDbName(uri) {
   return withDb + query;
 }
 
-mongoose.connect(ensureDbName(process.env.MONGODB_URI))
-  .then(() => console.log('MongoDB connected to:', mongoose.connection.db.databaseName))
-  .catch(err => console.error('MongoDB error:', err));
+let isConnected = false;
+async function connectDB() {
+  if (isConnected && mongoose.connection.readyState === 1) return;
+  const dbUri = ensureDbName(process.env.MONGODB_URI);
+  await mongoose.connect(dbUri);
+  isConnected = true;
+  console.log('MongoDB connected to:', mongoose.connection.db?.databaseName);
+}
+
+// Connect to DB before handling requests (vital for serverless functions)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+    res.status(500).json({ message: 'Database connection failed' });
+  }
+});
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+module.exports = app;
