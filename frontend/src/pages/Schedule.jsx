@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useClasses } from '../context/ClassContext';
 import { getCurrentDay, classStatus, getCurrentTimeMinutes, DAY_NAMES, DAY_SHORT, formatTime } from '../utils/timeUtils';
-import { Plus, Sparkles, Trash2, Search } from 'lucide-react';
+import { Plus, Sparkles, Trash2, Search, CalendarDays } from 'lucide-react';
 import ClassCard from '../components/ClassCard';
 import ClassFormModal from '../components/ClassFormModal';
 import AIUploadModal from '../components/AIUploadModal';
@@ -33,82 +34,160 @@ export default function Schedule() {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      className="p-6 max-w-4xl mx-auto"
+    >
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-display font-600 text-gray-900 dark:text-white">Weekly Schedule</h1>
-          <p className="text-sm text-gray-400 mt-0.5">{classes.length} total classes</p>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white tracking-tight">
+            Weekly Schedule
+          </h1>
+          <p className="text-xs sm:text-sm text-gray-400 mt-0.5">{classes.length} total classes configured</p>
         </div>
-        <div className="flex gap-2">
-          <button onClick={() => setShowAI(true)} className="flex items-center gap-2 px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-medium transition">
+        <div className="flex items-center gap-2">
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={() => setShowAI(true)} 
+            className="flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white rounded-xl text-xs sm:text-sm font-medium transition-all shadow-sm"
+          >
             <Sparkles size={15} />AI Import
-          </button>
-          <button onClick={() => { setEditCls(null); setShowAdd(true); }} className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+          </motion.button>
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={() => { setEditCls(null); setShowAdd(true); }} 
+            className="flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl text-xs sm:text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-xs"
+          >
             <Plus size={15} />Add class
-          </button>
+          </motion.button>
         </div>
       </div>
 
-      {/* Day tabs */}
-      <div className="flex gap-1.5 mb-5 overflow-x-auto pb-1 scrollbar-hide">
-        {DAY_SHORT.map(d => (
-          <button key={d} onClick={() => setActiveDay(d)}
-            className={`flex flex-col items-center px-3 py-2.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap min-w-[52px] ${activeDay === d ? 'bg-primary-600 text-white shadow-md shadow-primary-500/25 dark:shadow-[0_0_20px_rgba(37,99,235,0.4)]' : 'bg-white/90 dark:bg-[#0d1222]/80 backdrop-blur-md border border-gray-200/80 dark:border-gray-800/80 text-gray-600 dark:text-gray-400 hover:border-primary-300 dark:hover:border-primary-600 shadow-sm dark:shadow-[0_4px_15px_rgba(0,0,0,0.3)]'} ${d === currentDay && activeDay !== d ? 'ring-2 ring-primary-300 dark:ring-primary-700' : ''}`}>
-            <span>{d}</span>
-            {dayCount(d) > 0 && <span className={`mt-0.5 text-[10px] ${activeDay === d ? 'text-primary-200' : 'text-gray-400'}`}>{dayCount(d)}</span>}
-          </button>
-        ))}
+      {/* Day tabs with animated layoutId pill */}
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-hide">
+        {DAY_SHORT.map(d => {
+          const isActive = activeDay === d;
+          const isToday = d === currentDay;
+          return (
+            <button 
+              key={d} 
+              onClick={() => setActiveDay(d)}
+              className={`relative flex flex-col items-center px-4 py-2.5 rounded-2xl text-xs font-semibold transition-colors whitespace-nowrap min-w-[58px] focus:outline-none ${
+                isActive ? 'text-white' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              {isActive && (
+                <motion.div
+                  layoutId="activeScheduleDayTab"
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  className="absolute inset-0 bg-gradient-to-r from-primary-600 to-indigo-600 rounded-2xl shadow-md shadow-primary-500/25 dark:shadow-[0_0_20px_rgba(37,99,235,0.4)]"
+                />
+              )}
+              {!isActive && (
+                <div className={`absolute inset-0 bg-white/90 dark:bg-[#0d1222]/80 backdrop-blur-md rounded-2xl border ${
+                  isToday ? 'border-primary-400 dark:border-primary-600' : 'border-gray-200/80 dark:border-gray-800/80'
+                } -z-0`} />
+              )}
+              <span className="relative z-10">{d}</span>
+              {dayCount(d) > 0 && (
+                <span className={`relative z-10 mt-0.5 text-[10px] font-medium ${isActive ? 'text-primary-100' : 'text-gray-400'}`}>
+                  {dayCount(d)}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Search */}
+      {/* Search Bar */}
       {classes.length > 0 && (
-        <div className="relative mb-5">
-          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input value={search} onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200/80 dark:border-gray-800/80 bg-white/90 dark:bg-[#0d1222]/80 backdrop-blur-md text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] transition"
-            placeholder="Search by subject, teacher, or room..." />
+        <div className="relative mb-6">
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input 
+            value={search} 
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200/80 dark:border-gray-800/80 bg-white/90 dark:bg-[#0d1222]/80 backdrop-blur-md text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 shadow-sm transition"
+            placeholder="Search by subject, teacher, or room..." 
+          />
         </div>
       )}
 
-      {/* Classes list */}
+      {/* Classes list with key change animation */}
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="w-7 h-7 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-14">
-          <div className="w-14 h-14 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <Plus size={22} className="text-gray-400" />
+        <motion.div 
+          key="empty"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center py-14 bg-white/40 dark:bg-gray-900/20 backdrop-blur-sm rounded-3xl border border-dashed border-gray-200 dark:border-gray-800"
+        >
+          <div className="w-14 h-14 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-3 text-gray-400">
+            <Plus size={22} />
           </div>
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            {search ? 'No matching classes' : `No classes on ${DAY_NAMES[activeDay]}`}
+          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            {search ? 'No matching classes found' : `No classes on ${DAY_NAMES[activeDay]}`}
           </p>
-          {!search && <p className="text-xs text-gray-400 mt-1">Add a class or use AI Import</p>}
-        </div>
+          {!search && (
+            <p className="text-xs text-gray-400 mt-1">
+              Add a class manually or use AI Import to parse your syllabus
+            </p>
+          )}
+        </motion.div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <motion.div 
+          key={activeDay}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+          className="grid gap-3 sm:grid-cols-2"
+        >
           {filtered.map(cls => (
-            <ClassCard key={cls._id} cls={cls}
+            <ClassCard 
+              key={cls._id} 
+              cls={cls}
               status={activeDay === currentDay ? classStatus(cls, currentDay, currentMinutes) : 'other'}
               onEdit={c => { setEditCls(c); setShowAdd(true); }}
-              onDelete={deleteClass} />
+              onDelete={deleteClass} 
+            />
           ))}
-        </div>
+        </motion.div>
       )}
 
-      {/* Clear all */}
+      {/* Clear all confirm */}
       {classes.length > 0 && (
-        <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
+        <div className="mt-8 pt-4 border-t border-gray-200/60 dark:border-gray-800/60 flex items-center justify-between text-xs text-gray-400">
+          <span>{classes.length} classes active in semester</span>
           {showClearConfirm ? (
-            <div className="flex items-center gap-3 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
-              <p className="text-sm text-red-600 dark:text-red-400 flex-1">Delete all {classes.length} classes?</p>
-              <button onClick={() => { clearAll(); setShowClearConfirm(false); }} className="text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-700 bg-red-100 dark:bg-red-900/30 px-3 py-1.5 rounded-lg transition">Yes, delete all</button>
-              <button onClick={() => setShowClearConfirm(false)} className="text-xs font-medium text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition">Cancel</button>
+            <div className="flex items-center gap-2">
+              <span className="text-red-500 font-medium">Delete all classes?</span>
+              <button 
+                onClick={async () => { await clearAll(); setShowClearConfirm(false); }} 
+                className="px-2.5 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Yes, delete
+              </button>
+              <button 
+                onClick={() => setShowClearConfirm(false)} 
+                className="px-2.5 py-1 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
             </div>
           ) : (
-            <button onClick={() => setShowClearConfirm(true)} className="flex items-center gap-2 text-sm text-red-400 hover:text-red-500 transition">
-              <Trash2 size={15} />Clear all classes
+            <button 
+              onClick={() => setShowClearConfirm(true)} 
+              className="hover:text-red-500 flex items-center gap-1 transition-colors"
+            >
+              <Trash2 size={13} />
+              <span>Clear timetable</span>
             </button>
           )}
         </div>
@@ -116,6 +195,6 @@ export default function Schedule() {
 
       <ClassFormModal isOpen={showAdd} onClose={() => { setShowAdd(false); setEditCls(null); }} onSave={handleSave} initialData={editCls} />
       <AIUploadModal isOpen={showAI} onClose={() => setShowAI(false)} />
-    </div>
+    </motion.div>
   );
 }
