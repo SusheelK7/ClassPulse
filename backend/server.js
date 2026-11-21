@@ -8,19 +8,29 @@ dotenv.config();
 
 const app = express();
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  'https://classpulse-red.vercel.app',
+const defaultOrigins = [
+  'https://classping.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000'
-].filter(Boolean);
+];
+
+const envOrigins = [
+  ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : []),
+  ...(process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : [])
+]
+  .map(origin => origin.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+
+const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+    if (!origin) return callback(null, true);
+    const normalizedOrigin = origin.replace(/\/+$/, '');
+    if (allowedOrigins.includes(normalizedOrigin) || normalizedOrigin.endsWith('.vercel.app')) {
       return callback(null, true);
     }
-    return callback(null, true);
+    return callback(new Error(`Origin ${origin} not allowed by CORS`));
   },
   credentials: true
 }));

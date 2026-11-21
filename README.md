@@ -13,7 +13,7 @@ A full-stack web application that helps university students manage their class t
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-06B6D4?style=flat&logo=tailwindcss)
 
 ## 🔗 Live Demo
-**[classpulse-red.vercel.app](https://classpulse-red.vercel.app)**
+**[classping.vercel.app](https://classping.vercel.app)**
 
 ---
 
@@ -131,7 +131,7 @@ ClassPulse/
 
 | Service | Platform | URL |
 |---|---|---|
-| Frontend | Vercel | classpulse-red.vercel.app |
+| Frontend | Vercel | classping.vercel.app |
 | Backend | Railway | classpulse-production.up.railway.app |
 | Database | MongoDB Atlas | Cloud hosted |
 

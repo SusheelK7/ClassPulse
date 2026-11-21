@@ -1,7 +1,15 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_URL
-  || (import.meta.env.DEV ? '/api' : 'https://class-pulse-backend-mu.vercel.app/api');
+const getBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl) {
+    const trimmed = envUrl.trim().replace(/\/+$/, '');
+    return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+  }
+  return import.meta.env.DEV ? '/api' : '/api';
+};
+
+const BASE_URL = getBaseUrl();
 
 const api = axios.create({ baseURL: BASE_URL, withCredentials: true });
 
