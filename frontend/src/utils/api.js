@@ -6,7 +6,7 @@ const getBaseUrl = () => {
     const trimmed = envUrl.trim().replace(/\/+$/, '');
     return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
   }
-  return import.meta.env.DEV ? '/api' : '/api';
+  return import.meta.env.DEV ? '/api' : 'https://class-pulse-backend-mu.vercel.app/api';
 };
 
 const BASE_URL = getBaseUrl();
